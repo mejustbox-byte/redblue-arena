@@ -1,0 +1,6 @@
+{
+  "authorized": true,
+  "allowed_targets": ["lab://training"],
+  "target": "lab://training",
+  "scenario": "spread-logins"
+}

@@ -1,10 +1,21 @@
 # Security Policy
 
-Use this project only in systems you own or are explicitly authorized to test.
-Do not submit real credentials, personal data, exploit payloads, or production
-telemetry in issues or pull requests.
+Используйте проект только в собственных или явно разрешённых лабораториях. Не публикуйте реальные секреты, персональные данные или production-телеметрию в issues, PR или отчётах.
 
-Report vulnerabilities privately through GitHub Security Advisories. Include
-the affected version, a minimal safe reproduction, impact, and remediation
-suggestion. Do not test against third-party infrastructure.
+## Поддержка
 
+На текущем этапе исправления безопасности выпускаются для последнего состояния `main`. Версия 0.2.0 предназначена для локальной лаборатории; публичного облачного сервиса пока нет. Для исправлений используйте последнюю проверенную версию main, поскольку release tag неизменяемый.
+
+## Сообщение об уязвимости
+
+Используйте приватное сообщение через GitHub Security Advisories / Report a vulnerability, если этот канал включён владельцем. Если он недоступен, создайте issue только с просьбой предоставить приватный канал, без технических деталей уязвимости. Согласованный SLA пока отсутствует.
+
+Укажите версию или commit, безопасное минимальное воспроизведение, влияние и предлагаемое исправление. Не проверяйте чужие системы.
+
+## Ограничения лабораторной платформы
+
+Сценарии создают только синтетические события. CLI-конфигурация не принимает команды, адреса или пути плагинов. Локальный API использует tenant-scoped RBAC, явное подтверждение scope, квоты и hashed bearer tokens. Docker workers изолированы от сети и host mounts; trusted-local режим является доверенным subprocess, а не sandbox.
+
+HTTP API слушает только 127.0.0.1. Не открывайте его в интернет; stdlib HTTP server не является production server. Не публикуйте .lab, .token, SQLite, backups или отчёты. Audit hash-chain не защищает от владельца хоста, способного переписать базу. Детали моделей и ограничений — в THREAT-MODEL.md и OPERATIONS.md.
+
+Полная [модель угроз](THREAT-MODEL.md). MIT [LICENSE](LICENSE) применяется к коду и документации; этот документ описывает безопасное использование и не изменяет лицензию.
