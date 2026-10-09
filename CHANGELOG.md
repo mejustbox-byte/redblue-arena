@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased — 0.2.0
+## 0.2.0 — 2026-10-09
+
+- Добавлены scripts/dev.py setup/check/doctor и единый CI gate. Setup воспроизводит среду без создания токенов/баз; Docker проверки включаются явно.
+- Документация установки, разработки, архитектуры, API, угроз и эксплуатации согласована с локальным выпуском; историческая модель сохранена.
 
 - Подтверждены успешные unit/HTTP/CLI проверки, Docker build и оба Docker integration tests в GitHub Actions; обновлённый Codex Cloud snapshot опубликован и восстановлен на code commit 2f9b651.
 

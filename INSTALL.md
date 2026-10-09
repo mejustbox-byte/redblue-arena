@@ -7,16 +7,15 @@ CLI: CPython 3.12.x. Control plane: Linux или macOS (POSIX file locking); Win
 ```bash
 git clone https://github.com/mejustbox-byte/redblue-arena.git
 cd redblue-arena
-python3 -m venv .venv
+python3.12 scripts/dev.py setup
 source .venv/bin/activate
-python -m pip install -r requirements-dev.txt
-python -m ruff check redblue_arena tests
-python -m ruff format --check redblue_arena tests
-python -m unittest discover -s tests -v
-python tests/smoke.py
+python3.12 scripts/dev.py doctor
+python3.12 scripts/dev.py check
 ```
 
-На этапе разработки checkout нужной PR-ветки выполняется отдельно; main может ещё не содержать эти изменения. На Windows активируйте `.venv\Scripts\activate` для CLI.
+Для воспроизводимой версии используйте `git checkout v0.2.0` после публикации тега; разработку продолжайте в отдельной ветке от main. Setup проверяет Python до изменений, создаёт `.venv`, устанавливает Ruff и запускает lint/format, unit/HTTP, CLI smoke и evaluation. Повторный setup не удаляет окружение. `check` не устанавливает пакеты; переменная REDBLUE_DOCKER_TESTS не включает Docker незаметно. Сетевой доступ нужен для pip, а с `--docker` — для сборки базового образа. Настройка не создаёт identity, базу или постоянный сервер.
+
+На Windows доступен только офлайн CLI: вручную создайте venv через Python 3.12, установите requirements-dev.txt и активируйте `.venv\Scripts\activate`. Полная команда setup/check и control-plane тесты требуют POSIX. Не копируйте venv между ОС или checkout: создайте его заново в новом каталоге.
 
 ## Конфигурация сценария
 
@@ -70,6 +69,8 @@ python -m redblue_arena.web --db .lab/arena.sqlite serve --runner trusted-local
 ```bash
 docker build -t redblue-arena:lab .
 REDBLUE_DOCKER_TESTS=1 python -m unittest discover -s tests -p test_runner.py -v
+# Полный dev gate, включая build и Docker integration:
+python3.12 scripts/dev.py check --docker
 ```
 
 Интеграционные проверки запускают реальный worker и проверяют non-root, read-only filesystem и отсутствие сетевой достижимости. Без флага 2 Docker-теста явно skipped. GitHub Actions содержит отдельный Docker job.

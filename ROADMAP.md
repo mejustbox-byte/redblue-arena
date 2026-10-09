@@ -7,7 +7,7 @@
 - [x] GitHub Actions lint, format, unit и CLI smoke checks.
 - [x] Отдельная опубликованная Codex Cloud среда для redblue-arena; базовый commit 3658104 восстановлен и проверен без secrets.
 
-## Реализовано — версия 0.2.0 в PR
+## Реализовано — локальная версия 0.2.0
 
 - [x] Версионируемые правила, inclusive временные окна, configurable thresholds.
 - [x] Labelled synthetic evaluation, confusion matrix, FP rate/recall с оговоркой о synthetic-only данных.
@@ -20,11 +20,17 @@
 
 ## Инфраструктура и публичное облако — не выполнено
 
-- [x] Codex Cloud snapshot обновлён на 0.2.0 commit 2f9b651 и восстановлен в новой задаче; результаты в VERIFICATION.md. PR остаются draft.
+- [x] Codex Cloud snapshot обновлён на 0.2.0 commit 2f9b651 и восстановлен в новой задаче; результаты в VERIFICATION.md. Snapshot подтверждает код платформы до финальных изменений документации и dev tooling.
 - [ ] Выбрать cloud provider и deployment account, TLS, external IdP/MFA и production server.
 - [ ] Отдельные runtime/VM boundaries для tenant, ingress/egress policies вне приложения.
 - [ ] Независимый append-only audit sink, backup/restore drill и automatic retention scheduler.
 - [ ] Независимые security tests, нагрузочные тесты и эксплуатационное согласование перед публичным доступом.
-- [ ] Закрепить digest проверенного базового container image и release artifacts.
+- [ ] Закрепить digest проверенного базового container image для production-воспроизводимости.
 
-Real integrations, arbitrary commands и непроверенные plugins не входят в безопасную лабораторную реализацию. Наличие локальной платформы/CI не подтверждает production public-cloud readiness. PR остаются draft до review; планы не обозначаются как работающие гарантии.
+## Среда разработки и выпуск
+
+- [x] Repository-owned setup/check/doctor, закреплённая dev-зависимость и единый CI gate.
+- [x] Документация согласована с локальной версией 0.2.0; LICENSE сохранена.
+- [x] Автоматизация публикации тега v0.2.0 и source GitHub Release после успешного CI на main; будущие версии требуют отдельного решения.
+
+Real integrations, arbitrary commands и непроверенные plugins не входят в безопасную лабораторную реализацию. Наличие локальной платформы/CI не подтверждает production public-cloud readiness. Слияние и выпуск разрешены владельцем после проверок; планы не обозначаются как работающие гарантии.

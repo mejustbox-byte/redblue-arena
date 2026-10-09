@@ -2,7 +2,7 @@
 
 ## Проверенный код
 
-Repository: mejustbox-byte/redblue-arena. Code commit: `2f9b65104ca68d1c9595489a8d1e5798dd77d376`, branch `codex/local-platform`, draft PR #3. Следующий documentation-only commit содержит эту запись; Cloud snapshot закреплён на указанном code commit и не обновляется по каждому documentation-only изменению.
+Repository: mejustbox-byte/redblue-arena. Code commit: `2f9b65104ca68d1c9595489a8d1e5798dd77d376`, branch `codex/local-platform`, PR #3. Следующий documentation-only commit содержит эту запись; Cloud snapshot закреплён на указанном code commit и не обновляется по каждому documentation-only изменению.
 
 | Проверка | Результат | Где |
 | --- | --- | --- |
@@ -29,4 +29,8 @@ Snapshot опубликован на code commit выше, detached HEAD доп�
 
 ## Ограничения evidence
 
-Это проверка локальной лабораторной версии 0.2.0. Нет public cloud deployment, TLS/IdP, independent immutable audit sink, VM-level adversarial tenant isolation, production load test или независимого security audit. Secret regex scan не доказывает отсутствие всех возможных секретов. Ноль FP на четырёх control fixtures не оценивает detection efficacy на реальном трафике. Все PR остаются draft и не слиты.
+Это проверка локальной лабораторной версии 0.2.0. Нет public cloud deployment, TLS/IdP, independent immutable audit sink, VM-level adversarial tenant isolation, production load test или независимого security audit. Secret regex scan не доказывает отсутствие всех возможных секретов. Ноль FP на четырёх control fixtures не оценивает detection efficacy на реальном трафике. Публикация разрешена владельцем после успешного CI. Финальный dev tooling и документация проверяются отдельным PR/main run; источник конкретного релиза — тег v0.2.0.
+
+## Финальная среда разработки
+
+scripts/dev.py check прошёл локально: pip check, lint/format (21 Python files), 27 passed/2 Docker skipped, 4 smoke fixtures, evaluation TP2/TN2/FP0/FN0. Setup проверен в новом временном checkout/venv и повторно в том же окружении; постоянные lab data не создаются. CI использует тот же setup; release job разрешён только на push main после успешных test и docker jobs, только для 0.2.0 и без перезаписи существующего выпуска. Секрет GITHUB_TOKEN предоставляется Actions во время job, не хранится в проекте. Финальный результат CI/релиза проверяется через GitHub; прежний Cloud snapshot не объявляется обновлённым этим workflow.

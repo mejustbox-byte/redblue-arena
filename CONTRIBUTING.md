@@ -12,8 +12,8 @@
 ## Проверки
 
 ```bash
-python3 -m unittest discover -s tests -v
-python3 -m redblue_arena --config examples/lab.json
+python3.12 scripts/dev.py setup
+python3.12 scripts/dev.py check --docker
 git diff --check
 ```
 
@@ -34,3 +34,7 @@ git diff --check
 Модули/API и миграция описаны в MODULE-API.md, HTTP endpoints — в API.md. Для control plane обязательны тесты tenant isolation, RBAC denial, scope, quotas, cancel/timeout, restart, audit tamper detection, retention и HTTP Host/Origin. REDBLUE_DOCKER_TESTS=1 включает реальные проверки контейнера после build. Никогда не подменяйте skipped Docker tests утверждением об успешной изоляции.
 
 Изменение JSON schema требует явного schema_version и migration note. Не обещайте public cloud readiness по результатам local HTTP tests. Dev data, tokens и databases должны оставаться вне git.
+
+## Выпуск 0.2.0
+
+После одобренного слияния push main запускает test/Docker gates. Только при их успехе release job с contents:write создаёт v0.2.0 и публикует RELEASE-NOTES.md через временный Actions token. Повторный запуск сохраняет существующий релиз; будущие версии требуют отдельного изменения release job. Не переносите права release job в test job.

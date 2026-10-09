@@ -15,6 +15,18 @@
 
 Это исполняемая локальная лабораторная платформа. Публичный облачный сервис пока не развёрнут: TLS, внешний identity provider, отдельный runtime для арендаторов и эксплуатационная проверка требуют инфраструктуры. Codex Cloud — среда разработки, а не hosting платформы.
 
+## Среда разработки
+
+Из корня checkout на Linux/macOS с CPython 3.12.x:
+
+```bash
+python3.12 scripts/dev.py setup
+python3.12 scripts/dev.py doctor
+python3.12 scripts/dev.py check --docker
+```
+
+Setup создаёт `.venv`, устанавливает закреплённый Ruff и проверяет проект. Повторный запуск сохраняет существующее окружение. Docker-проверка требует работающий daemon и собирает локальный образ; обычный setup не требует Docker. Токены, база и сервер при настройке не создаются. Подробности — [INSTALL.md](INSTALL.md).
+
 ## Быстрый офлайн запуск
 
 Требуется Python 3.12.x; runtime использует только стандартную библиотеку.
@@ -46,3 +58,5 @@ Docker — режим по умолчанию; его отсутствие вы�
 См. [SECURITY.md](SECURITY.md), [THREAT-MODEL.md](THREAT-MODEL.md), [ARCHITECTURE.md](ARCHITECTURE.md), [TECH-STACK.md](TECH-STACK.md), [ROADMAP.md](ROADMAP.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [OPERATIONS.md](OPERATIONS.md).
 
 Проверенные результаты code commit 0.2.0: [VERIFICATION.md](VERIFICATION.md).
+
+Состав и ограничения выпуска: [RELEASE-NOTES.md](RELEASE-NOTES.md). GitHub Release публикуется после слияния и успешных test/Docker jobs; существующий тег не перезаписывается.

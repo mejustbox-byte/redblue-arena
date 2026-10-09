@@ -37,6 +37,10 @@ Docker runner не монтирует host/daemon socket, не публикуе�
 
 Один процесс владеет SQLite через POSIX flock; после рестарта queued/running не повторяются, а становятся failed. Лимиты, cancellation и retention описаны в OPERATIONS.md. SQLite chain не является внешним неизменяемым audit sink.
 
+## Настройка и проверка разработки
+
+scripts/dev.py создаёт локальный venv и вызывает те же проверки, что CI. Он не запускает постоянный server/provision и не содержит credentials. Docker gate включается явно через --docker; отсутствие Docker не заменяется доверенным runner. INSTALL.md описывает ручной запуск локальной платформы.
+
 ## Внешнее облако
 
 Требует отдельного control-plane server с TLS/identity provider, защищённого хранилища и worker runtime/VM boundaries, централизованного аудита и эксплуатационной проверки. Текущая реализация проверяет локальные application boundaries и container worker policy; она не гарантирует изоляцию от привилегированного владельца общего Docker host.

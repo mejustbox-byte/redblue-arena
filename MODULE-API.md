@@ -17,3 +17,7 @@
 - Потребители, требующие schema_version=1, должны перейти на v2. Нет скрытого down-conversion; изменение окна может изменить detection на разнесённых событиях.
 
 `--evaluate` возвращает отдельную схему evaluation v1: cases, confusion_matrix, recall, false_positive_rate. Четыре контрольных label заданы для правила по умолчанию. Custom rule может изменить качество относительно этих label. Ноль FP на четырёх синтетических fixtures не оценивает production efficacy.
+
+## Проверка версии
+
+Контракты относятся к локальной версии 0.2.0. Подготовка и проверка checkout: `python3.12 scripts/dev.py setup`, затем `python3.12 scripts/dev.py check --docker` на POSIX с работающим Docker. Статус evidence и Cloud snapshot — [VERIFICATION.md](VERIFICATION.md); public hosting остаётся в [ROADMAP.md](ROADMAP.md).

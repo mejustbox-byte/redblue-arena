@@ -36,3 +36,7 @@ Tenant никогда не принимается из JSON или URL: его �
 403: authentication/role/scope/job access denied; 400: invalid body/config; 429: квота или rate limit; 404: неизвестный endpoint; 500: общая ошибка без внутренних подробностей. CORS не разрешается, токены не передаются в query string, access logs отключены. Клиент обновляет список вручную, без polling.
 
 Python ControlPlane API — доверенная внутренняя библиотека: Principal создаётся после authenticate сервером. Переданный вручную Principal не является самостоятельным доказательством identity.
+
+## Проверка версии
+
+Контракты относятся к локальной версии 0.2.0. Подготовка и проверка checkout: `python3.12 scripts/dev.py setup`, затем `python3.12 scripts/dev.py check --docker` на POSIX с работающим Docker. Статус evidence и Cloud snapshot — [VERIFICATION.md](VERIFICATION.md); public hosting остаётся в [ROADMAP.md](ROADMAP.md).

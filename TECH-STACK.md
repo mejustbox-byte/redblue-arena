@@ -1,62 +1,32 @@
-# Tech stack — решение 2026-10-09
+# Tech stack — версия 0.2.0
 
-## Зафиксированный выбор
-
-| Слой | Выбор | Обоснование и статус |
+| Слой | Выбор | Статус |
 | --- | --- | --- |
-| Runtime | CPython 3.12.x | Проверенный локально 3.12.14; зрелая стандартная библиотека, простой CLI |
-| Пакеты | pip + venv | Стандартный инструмент, отдельное окружение; runtime-зависимостей нет |
-| Тесты | unittest + subprocess smoke test | Без внешних зависимостей; проверка pipeline, отказов и CLI |
-| Линтер/форматтер | Ruff 0.15.0 | Один инструмент для lint и format; точная версия dev-зависимости |
-| Контейнеры | Docker / OCI, Python 3.12 slim | Непривилегированный пользователь; запуск без сети, read-only и с лимитами |
-| CI | GitHub Actions, Ubuntu 24.04, Python 3.12 | Минимальные permissions, lint, format, tests и smoke; не требует секретов |
-| MVP UI/storage | CLI и JSON; в памяти | Минимальная поверхность атаки, детерминированные учебные данные |
-| Облачный API/БД/UI | Отложено | FastAPI, PostgreSQL и frontend рассматриваются только при появлении требований |
+| Runtime | CPython 3.12.x, стандартная библиотека | Проверен Python 3.12.14, runtime dependencies отсутствуют |
+| Dev environment | pip/venv, scripts/dev.py | setup/check/doctor; Ruff 0.15.0 закреплён |
+| Тесты | unittest, subprocess CLI smoke | 27 default checks + 2 opt-in Docker checks, 4 CLI fixtures |
+| Control plane | sqlite3, concurrent.futures, POSIX fcntl | Single-host transactions/lock, Linux/macOS |
+| HTTP/UI | http.server, статические HTML/JavaScript | Только loopback, same-origin, без bundler |
+| Workers | Docker/OCI, Python 3.12 slim | Non-root, read-only, network none, resource limits |
+| CI | GitHub Actions, Ubuntu 24.04, Python 3.12 | Dev gate и отдельная реальная Docker integration |
+| Public hosting/identity | Не выбран и не развёрнут | Требует TLS, внешний IdP и инфраструктуру из ROADMAP |
 
-Python выбран для схем, синтетических сценариев и детекторов благодаря простоте проверки и поддержки. Go/Rust для этого ограниченного MVP увеличивают стоимость реализации без необходимого выигрыша. Универсальная плагинная загрузка, очереди, Kubernetes и полноценный web frontend пока не нужны.
+Python выбран для детерминированных fixtures и правил. Проект не загружает произвольные плагины и не требует FastAPI, PostgreSQL или Kubernetes для локальной лаборатории. Docker base tag изменяемый: source tag не закрепляет digest образа. Actions также используют major-version tags. Для production release потребуется пересмотр supply chain.
 
-Поддерживаемый и проверяемый runtime проекта теперь 3.12; более раннее описание 3.10+ заменено. Используйте актуальные security patch-релизы ветки 3.12 после тестирования. Для воспроизводимого production-контейнера потребуется закрепить digest проверенного образа; текущий Dockerfile — лабораторная заготовка с изменяемым тегом.
-
-## Команды проверки
+## Воспроизводимая настройка
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements-dev.txt
-python -m ruff check redblue_arena tests
-python -m ruff format --check redblue_arena tests
-python -m unittest discover -s tests -v
-python tests/smoke.py
+python3.12 scripts/dev.py setup
+python3.12 scripts/dev.py doctor
+python3.12 scripts/dev.py check --docker
 ```
 
-Ruff конфигурируется в `pyproject.toml`; версия закреплена в `requirements-dev.txt`. pip использует версию из выбранного venv, отдельный pin pip не нужен для MVP без runtime-зависимостей. Lock-файл runtime пока не нужен; при появлении зависимостей потребуется полный lock с hashes.
+Setup устанавливает только dev dependency из requirements-dev.txt. Check не устанавливает пакеты и не создаёт токены или постоянные данные; тесты используют временные ресурсы с cleanup. Для Docker нужны установленный daemon и доступ к registry при build. Полный control-plane gate требует POSIX. Windows поддерживается только офлайн CLI, см. INSTALL.md.
 
-## Codex Cloud — отдельная среда
+## Codex Cloud
 
-После фиксации стека создайте среду только для `mejustbox-byte/redblue-arena`. Имя: `redblue-arena-lab`; рабочая ветка — ветка проверяемого PR. Не добавляйте токены, SSH-ключи, облачные credentials или production-переменные. Agent network access должен быть отключён; загрузка dev-зависимостей допускается только на этапе setup из доверенного registry.
+Среда `redblue-arena` относится только к mejustbox-byte/redblue-arena, доступ «Только я», без настроенных secrets/переменных/дополнительных доменов. Опубликованный snapshot закреплён на code commit 2f9b65104ca68d1c9595489a8d1e5798dd77d376; он предшествует финальному dev tooling и документации. В новой задаче подтвердились Python 3.12.14, lint/format, 27 passed/2 Docker skipped, 4 CLI fixtures и evaluation. Для разработки release checkout следует обновить отдельно, сохраняя чужие изменения.
 
-Setup command:
+Сеть ограничена preset менеджеров пакетов. Это не полное OS deny-egress среды разработки; network=none реализован отдельно для Docker worker. HTTP tests требуют loopback sockets. Docker integration проверена в CI, а не в restored Cloud. Codex Cloud не является hosting приложения.
 
-```bash
-python3 --version
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python tests/smoke.py
-```
-
-После создания проверьте принадлежность единственному репозиторию, Python 3.12, отсутствие настроенных secrets, exit code 0 smoke test и негативные policy-тесты. Не выводите значения переменных окружения или credentials в лог.
-
-## Статус верификации
-
-Документация и локальный MVP проверены. Codex Cloud `redblue-arena` опубликована 2026-10-09: единственный репозиторий, доступ «Только я», без secrets/переменных, сеть ограничена preset менеджеров пакетов без дополнительных доменов. В новой задаче восстановлен commit 3658104, Python 3.12.14; lint, format, 4 unittest и smoke прошли. Это подтверждение базового commit, а не будущих изменений. Рекомендация полного отключения agent network остаётся целевым ограничением; текущий preset допускает обращения к registry. GitHub Actions CI успешно завершился для commit c082cb6 (run 37881543855). Контейнерная сборка ещё требует успешного запуска; наличие файлов конфигурации не является подтверждением их работы.
-
-Источники: [Python venv](https://docs.python.org/3.12/tutorial/venv.html), [Ruff configuration](https://docs.astral.sh/ruff/configuration/), [Codex Cloud environments](https://learn.chatgpt.com/docs/environments/cloud-environment).
-
-## Расширение 0.2.0
-
-Runtime остаётся CPython 3.12.x без сторонних пакетов. Control plane использует sqlite3, http.server, concurrent.futures и POSIX fcntl; поддерживается Linux/macOS. SQLite transactions и flock обеспечивают single-host consistency. http.server используется только на loopback; внешний production server не выбран и не развёрнут.
-
-UI: статические HTML/JavaScript same-origin без bundler и сторонних зависимостей. Docker integration job выполняет сборку и проверку worker boundaries отдельно от unit/HTTP tests. Публичный hosting/IdP/БД за пределами одного host потребуют отдельного решения; это не скрытое изменение ранее выбранного стека.
-
-Codex Cloud обновлена и опубликована на commit 2f9b65104ca68d1c9595489a8d1e5798dd77d376 (0.2.0, schema v2). Восстановление в новой задаче проверено: Python 3.12.14, 27 passed/2 Docker skipped, lint/format, 4 smoke-сценария и evaluation успешны. HTTP-тесты потребовали разрешения loopback sockets. Docker build и 2 integration tests отдельно прошли в GitHub Actions run 37887959962. Подробности и границы — [VERIFICATION.md](VERIFICATION.md).
+Repository-owned setup command для нового checkout: `python3.12 scripts/dev.py setup`. Результаты и границы проверок — [VERIFICATION.md](VERIFICATION.md). Историческая baseline snapshot 3658104 проверялась отдельно до реализации платформы.
