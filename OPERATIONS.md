@@ -41,10 +41,8 @@ Backup: остановите serve, скопируйте SQLite и приват�
 
 ## Перед внешним cloud deployment
 
-Требуются выбранный провайдер/аккаунт, TLS и внешний identity provider, устойчивое secret management, отдельный worker runtime/daemon или VM для tenant, контроль ingress/egress вне приложения, централизованный audit sink, backup/restore drill, нагрузочные и независимые security tests. Текущий stdlib HTTP server нельзя открывать в интернет или выдавать за production multi-tenant сервис. Эти инфраструктурные шаги не выполняются созданием Codex Cloud среды.
 
 ## Проверка версии
 
-Контракты относятся к локальной версии 0.2.0. Подготовка и проверка checkout: `python3.12 scripts/dev.py setup`, затем `python3.12 scripts/dev.py check --docker` на POSIX с работающим Docker. Статус evidence и Cloud snapshot — [VERIFICATION.md](VERIFICATION.md); public hosting остаётся в [ROADMAP.md](ROADMAP.md).
 
 Приёмка пользовательского host не подтверждена CI: [LOCAL-INFRA-CHECKS.md](LOCAL-INFRA-CHECKS.md) содержит команды, критерии и not-run статус. В 0.2.1 эксплуатационное поведение платформы не меняется.

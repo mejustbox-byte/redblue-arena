@@ -5,7 +5,6 @@
 - [x] Явная авторизация, allowlist, bounded synthetic telemetry, JSON report и CLI audit.
 - [x] Положительные/отрицательные fixtures на пороге и ниже, target isolation.
 - [x] GitHub Actions lint, format, unit и CLI smoke checks.
-- [x] Отдельная опубликованная Codex Cloud среда для redblue-arena; базовый commit 3658104 восстановлен и проверен без secrets.
 
 ## Реализовано — локальная версия 0.2.0
 
@@ -20,7 +19,6 @@
 
 ## Инфраструктура и публичное облако — не выполнено
 
-- [x] Codex Cloud snapshot обновлён на 0.2.0 commit 2f9b651 и восстановлен в новой задаче; результаты в VERIFICATION.md. Snapshot подтверждает код платформы до финальных изменений документации и dev tooling.
 - [ ] Выбрать cloud provider и deployment account, TLS, external IdP/MFA и production server.
 - [ ] Отдельные runtime/VM boundaries для tenant, ingress/egress policies вне приложения.
 - [ ] Независимый append-only audit sink, backup/restore drill и automatic retention scheduler.

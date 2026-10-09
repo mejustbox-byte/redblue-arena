@@ -11,4 +11,3 @@ python3.12 scripts/dev.py check --docker
 
 LOCAL-INFRA-CHECKS.md описывает ручную приёмку пользовательского host: Docker daemon, loopback bind, browser E2E/storage, file permissions, backup/restore, crash/restart, retention и нагрузка. Эти пункты не выполнены на пользовательском host и не заменяются CI success. VERIFICATION.md хранит evidence; INSTALL.md — запуск.
 
-Public cloud hosting/TLS/IdP, tenant VM isolation, независимый audit/security/load review остаются вне релиза. Docker base tag изменяемый; hash-chain не защищает от владельца хоста. Source archives предоставляются GitHub, binary/container assets не публикуются. Тег 0.2.0 не перезаписывается. Codex Cloud snapshot 2f9b651 не обновляется этим выпуском.

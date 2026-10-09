@@ -12,8 +12,6 @@
 - Добавлены scripts/dev.py setup/check/doctor и единый CI gate. Setup воспроизводит среду без создания токенов/баз; Docker проверки включаются явно.
 - Документация установки, разработки, архитектуры, API, угроз и эксплуатации согласована с локальным выпуском; историческая модель сохранена.
 
-- Подтверждены успешные unit/HTTP/CLI проверки, Docker build и оба Docker integration tests в GitHub Actions; обновлённый Codex Cloud snapshot опубликован и восстановлен на code commit 2f9b651.
-
 - Модульный API v2, report schema v2, относительные timestamps, versioned configurable sliding-window rule.
 - Добавлены spread-logins и labelled fixture evaluation с confusion matrix, recall и false positive rate.
 - Реализован локальный SQLite control plane: hashed tokens, tenant-scoped RBAC/scope, квоты, очередь, cancel/timeout, restart без replay.
@@ -24,7 +22,6 @@
 
 - Добавлены сценарии `threshold-logins` и `benign-logins`, примеры конфигураций и регрессионная матрица detection quality.
 - Проверены успешные входы, разделение целей, порог и обязательная авторизация новых сценариев.
-- Codex Cloud опубликована; восстановление и smoke test базового commit 3658104 подтверждены в новой задаче.
 
 - Зафиксирован стек Python 3.12, pip/venv, unittest, Ruff, Docker и GitHub Actions.
 - Добавлены CLI smoke test и конфигурации dev-инструментов, контейнера и CI; GitHub Actions CI прошёл успешно, проверка базовой облачной среды завершена.

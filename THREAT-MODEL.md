@@ -33,4 +33,3 @@ SECURITY.md описывает reporting. Старый docs/THREAT_MODEL.md со
 
 ## Проверка версии
 
-Контракты относятся к локальной версии 0.2.0. Подготовка и проверка checkout: `python3.12 scripts/dev.py setup`, затем `python3.12 scripts/dev.py check --docker` на POSIX с работающим Docker. Статус evidence и Cloud snapshot — [VERIFICATION.md](VERIFICATION.md); public hosting остаётся в [ROADMAP.md](ROADMAP.md).
