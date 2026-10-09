@@ -1,76 +1,29 @@
-"""Explicit module contracts and an offline orchestration pipeline."""
+"""Policy, normalization and orchestration. Public compatibility imports remain here."""
 
-from dataclasses import asdict, dataclass
-from typing import Protocol
+from dataclasses import asdict
 
+from .modules.contracts import Detector, Event, Scenario
+from .modules.detections import RepeatedFailures, Rule
+from .modules.scenarios import SCENARIOS, BenignLogins, FailedLogins, ThresholdLogins
 
-@dataclass(frozen=True)
-class Event:
-    sequence: int
-    target: str
-    kind: str
-    outcome: str
-    synthetic: bool = True
-
-
-class Scenario(Protocol):
-    def generate(self, target: str) -> list[Event]: ...
-
-
-class Detector(Protocol):
-    def detect(self, events: list[Event]) -> list[dict]: ...
-
-
-class FailedLogins:
-    def generate(self, target: str) -> list[Event]:
-        return [Event(i, target, "authentication", "failure") for i in range(1, 7)]
-
-
-class ThresholdLogins:
-    """Positive fixture exactly at the detection threshold."""
-
-    def generate(self, target: str) -> list[Event]:
-        return [Event(i, target, "authentication", "failure") for i in range(1, 6)]
-
-
-class BenignLogins:
-    """Negative fixture: four failures mixed with successful logins."""
-
-    def generate(self, target: str) -> list[Event]:
-        outcomes = ("failure", "success", "failure", "success", "failure", "failure")
-        return [
-            Event(i, target, "authentication", outcome) for i, outcome in enumerate(outcomes, 1)
-        ]
-
-
-class RepeatedFailures:
-    def detect(self, events: list[Event]) -> list[dict]:
-        counts: dict[str, int] = {}
-        for event in events:
-            if event.kind == "authentication" and event.outcome == "failure":
-                counts[event.target] = counts.get(event.target, 0) + 1
-        return [
-            {
-                "rule_id": "auth.repeated_failures",
-                "target": target,
-                "severity": "medium",
-                "count": count,
-                "threshold": 5,
-            }
-            for target, count in sorted(counts.items())
-            if count >= 5
-        ]
-
-
-SCENARIOS: dict[str, Scenario] = {
-    "failed-logins": FailedLogins(),
-    "threshold-logins": ThresholdLogins(),
-    "benign-logins": BenignLogins(),
-}
+__all__ = [
+    "Detector",
+    "Event",
+    "Scenario",
+    "RepeatedFailures",
+    "Rule",
+    "SCENARIOS",
+    "BenignLogins",
+    "FailedLogins",
+    "ThresholdLogins",
+    "validate",
+    "normalize",
+    "run",
+]
 
 
 def validate(config: dict) -> tuple[str, str]:
-    if not isinstance(config, dict) or set(config) != {
+    if not isinstance(config, dict) or set(config) - {"rule"} != {
         "authorized",
         "allowed_targets",
         "target",
@@ -99,29 +52,54 @@ def validate(config: dict) -> tuple[str, str]:
     scenario = config["scenario"]
     if not isinstance(scenario, str) or scenario not in SCENARIOS:
         raise ValueError("Unknown scenario")
+    if "rule" in config:
+        rule_from_config(config["rule"])
     return target, scenario
 
 
+def rule_from_config(value: dict) -> Rule:
+    if not isinstance(value, dict) or set(value) != {
+        "rule_id",
+        "version",
+        "threshold",
+        "window_ms",
+    }:
+        raise ValueError("Rule must contain rule_id, version, threshold, window_ms")
+    return Rule(**value)
+
+
 def normalize(events: list[Event], target: str) -> list[Event]:
+    if not isinstance(events, list) or not 1 <= len(events) <= 10000:
+        raise ValueError("Telemetry must contain 1–10000 events")
+    previous_time = -1
     for i, event in enumerate(events, 1):
         if (
             not isinstance(event, Event)
             or event.synthetic is not True
             or event.target != target
+            or type(event.sequence) is not int
             or event.sequence != i
+            or type(event.timestamp_ms) is not int
+            or not 0 <= event.timestamp_ms <= 86400000
+            or event.timestamp_ms < previous_time
+            or not isinstance(event.kind, str)
             or event.kind != "authentication"
+            or not isinstance(event.outcome, str)
             or event.outcome not in {"failure", "success"}
         ):
             raise ValueError("Invalid synthetic telemetry")
+        previous_time = event.timestamp_ms
     return events
 
 
 def run(config: dict) -> dict:
     target, scenario = validate(config)
     events = normalize(SCENARIOS[scenario].generate(target), target)
-    findings = RepeatedFailures().detect(events)
+    rule = rule_from_config(config["rule"]) if "rule" in config else Rule()
+    findings = RepeatedFailures(rule).detect(events)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
+        "rule": rule.as_dict(),
         "mode": "synthetic-offline",
         "scenario": scenario,
         "target": target,

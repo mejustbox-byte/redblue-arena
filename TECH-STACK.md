@@ -52,3 +52,11 @@ python3 -m venv .venv
 Документация и локальный MVP проверены. Codex Cloud `redblue-arena` опубликована 2026-10-09: единственный репозиторий, доступ «Только я», без secrets/переменных, сеть ограничена preset менеджеров пакетов без дополнительных доменов. В новой задаче восстановлен commit 3658104, Python 3.12.14; lint, format, 4 unittest и smoke прошли. Это подтверждение базового commit, а не будущих изменений. Рекомендация полного отключения agent network остаётся целевым ограничением; текущий preset допускает обращения к registry. GitHub Actions CI успешно завершился для commit c082cb6 (run 37881543855). Контейнерная сборка ещё требует успешного запуска; наличие файлов конфигурации не является подтверждением их работы.
 
 Источники: [Python venv](https://docs.python.org/3.12/tutorial/venv.html), [Ruff configuration](https://docs.astral.sh/ruff/configuration/), [Codex Cloud environments](https://learn.chatgpt.com/docs/environments/cloud-environment).
+
+## Расширение 0.2.0
+
+Runtime остаётся CPython 3.12.x без сторонних пакетов. Control plane использует sqlite3, http.server, concurrent.futures и POSIX fcntl; поддерживается Linux/macOS. SQLite transactions и flock обеспечивают single-host consistency. http.server используется только на loopback; внешний production server не выбран и не развёрнут.
+
+UI: статические HTML/JavaScript same-origin без bundler и сторонних зависимостей. Docker integration job выполняет сборку и проверку worker boundaries отдельно от unit/HTTP tests. Публичный hosting/IdP/БД за пределами одного host потребуют отдельного решения; это не скрытое изменение ранее выбранного стека.
+
+Codex Cloud пока закреплена на проверенном базовом commit 3658104 и схеме v1. Новая версия использует schema v2 и расширенный test suite; её проверка в CI не означает автоматического обновления snapshot опубликованной среды.

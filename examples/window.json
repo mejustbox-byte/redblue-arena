@@ -1,0 +1,12 @@
+{
+  "authorized": true,
+  "allowed_targets": ["lab://training"],
+  "target": "lab://training",
+  "scenario": "failed-logins",
+  "rule": {
+    "rule_id": "auth.repeated_failures",
+    "version": 2,
+    "threshold": 5,
+    "window_ms": 3000
+  }
+}

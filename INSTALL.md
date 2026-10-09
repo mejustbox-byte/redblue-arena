@@ -1,77 +1,88 @@
 # Installation
 
-## Локальная лаборатория
+## Runtime и проверки
 
-Требуется Python 3.12.x. Дополнительные пакеты и облачные учётные данные не нужны.
+CLI: CPython 3.12.x. Control plane: Linux или macOS (POSIX file locking); Windows поддерживается только для офлайн CLI. Dev-зависимость — Ruff 0.15.0.
 
 ```bash
 git clone https://github.com/mejustbox-byte/redblue-arena.git
 cd redblue-arena
 python3 -m venv .venv
 source .venv/bin/activate
-python3 -m unittest discover -s tests -v
-python3 -m redblue_arena --config examples/lab.json > report.json
+python -m pip install -r requirements-dev.txt
+python -m ruff check redblue_arena tests
+python -m ruff format --check redblue_arena tests
+python -m unittest discover -s tests -v
+python tests/smoke.py
 ```
 
-Windows: активируйте окружение через `.venv\Scripts\activate`.
+На этапе разработки checkout нужной PR-ветки выполняется отдельно; main может ещё не содержать эти изменения. На Windows активируйте `.venv\Scripts\activate` для CLI.
 
-## Конфигурация
+## Конфигурация сценария
 
-Скопируйте `examples/lab.json`. Укажите своё явное разрешение в `authorized`, учебные идентификаторы в `allowed_targets`, выбранную `target` и сценарий из таблицы в README (`failed-logins`, `threshold-logins` или `benign-logins`). Разрешены только идентификаторы `lab://` с непустым суффиксом из строчных латинских букв, цифр, дефиса и подчёркивания. Не указывайте IP, URL, пароли или реальные логи.
+Четыре обязательных поля: `authorized`, `allowed_targets`, `target`, `scenario`. Дополнительно допускается `rule` с ровно четырьмя полями: rule_id, version, threshold, window_ms. Другие поля отклоняются.
 
-Успешный запуск возвращает код 0 и JSON в stdout: 6 событий, 1 finding и 3 записи аудита. Недопустимая конфигурация возвращает код 2 и JSON с причиной в stderr; сценарий не запускается. Размер конфигурации ограничен 64 KiB.
+- `authorized` строго true; allowlist содержит 1–100 идентификаторов `lab://` с суффиксом из строчных латинских букв, цифр, дефиса и подчёркивания, до 128 символов.
+- target должен точно совпадать с allowlist. Сценарии перечислены в README.
+- rule_id фиксирован: `auth.repeated_failures`; version: 2; threshold: целое 2–100; window_ms: целое 1000–3600000. Boolean не принимается как число.
+- По умолчанию: threshold 5, window_ms 60000. Граница окна включена.
 
-## Облако
-
-Облачный сервис пока не готов. CLI можно выполнять в изолированной учебной VM с Python без входящих портов и без сетевого доступа. Развёртывание публичного API будет отдельным этапом после RBAC, квот и контроля egress.
-
-## Пример настроенной лаборатории
-
-```json
-{
-  "authorized": true,
-  "allowed_targets": ["lab://training", "lab://demo"],
-  "target": "lab://demo",
-  "scenario": "failed-logins"
-}
+```bash
+python -m redblue_arena --config examples/lab.json
+python -m redblue_arena --config examples/spread.json
+python -m redblue_arena --config examples/window.json
+python -m redblue_arena --config examples/lab.json --evaluate
 ```
 
-Все четыре поля обязательны. Дополнительные поля отклоняются. Идентификатор не длиннее 128 символов; allowlist содержит 1–100 записей. Имя сценария выбирается из фиксированного реестра. Не добавляйте сетевые разрешения для этого примера: он работает полностью офлайн.
+Успех: код 0, JSON stdout. Отказ: код 2, JSON stderr. Ввод ограничен 64 KiB. JSON-отчёт сценария имеет schema_version 2; evaluation имеет отдельную schema_version 1. `examples/window.json` даёт 0 findings, потому что в окне 3 секунды не помещается 5 ошибок.
 
-## Проверка результата и диагностика
+## Локальный dashboard и API
 
-В `report.json` должны быть `schema_version: 1`, `mode: synthetic-offline`, шесть `events`, одна запись `findings` с `count: 6` и `threshold: 5`, три записи `audit`.
+Сначала подготовьте приватный каталог и создайте identity. Команда выдаёт токен один раз; редирект сохраняет его локально, а не в shell history.
 
-| Симптом | Что проверить |
-| --- | --- |
-| Python не найден | Установлен ли Python 3.12.x и доступна ли команда python3 |
-| No module named redblue_arena | Запускается ли команда из корня репозитория |
-| Explicit laboratory authorization is required | Явное разрешение `authorized: true` |
-| Target is outside the allowlist | Точное совпадение target с записью allowlist |
-| Unknown scenario | Имя из фиксированного реестра в README |
-| Ошибка JSON или чтения | Синтаксис, права и путь конфигурации |
+```bash
+umask 077
+mkdir -p .lab
+python -m redblue_arena.web --db .lab/arena.sqlite provision --tenant training --subject operator --role admin --target lab://training > .lab/operator.token
+```
 
-Отчёты и конфигурации храните в учебном окружении. Перед публикацией проверьте их содержимое. CLI не создаёт сервис и не требует открытия портов.
+Для отдельного viewer повторите provision с `--subject observer --role viewer` и сохраните в другом `.token`. Для одного tenant список целей должен совпадать; provision не меняет существующий scope. Остановите сервер перед provision/revoke: одна база допускает один control-plane процесс.
 
-## Dev tools и контейнер
-
-Установка dev-инструментов и проверки описаны в [TECH-STACK.md](TECH-STACK.md). Runtime остаётся без сторонних пакетов.
+Рекомендуемый изолированный режим:
 
 ```bash
 docker build -t redblue-arena:lab .
-docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 128m --cpus 1 redblue-arena:lab
+python -m redblue_arena.web --db .lab/arena.sqlite serve --runner docker
 ```
 
-Сборка требует доступа к registry образов. Dockerfile ещё не проверен сборкой в текущей среде; доступного Docker здесь нет. Не публикуйте порты.
+Откройте `http://127.0.0.1:8765`, вставьте токен из приватного файла в поле доступа. Выберите сценарий, цель и подтвердите scope. Задания, JSON-отчёты, отмена, аудит и retention доступны в dashboard. Токен хранится только в памяти вкладки и очищается кнопкой «Выйти».
 
-## Положительный и отрицательный контроль
+Если Docker не установлен, только для доверенных встроенных модулей:
 
 ```bash
-python -m redblue_arena --config examples/threshold.json
-python -m redblue_arena --config examples/benign.json
-python -m unittest discover -s tests -v
+python -m redblue_arena.web --db .lab/arena.sqlite serve --runner trusted-local
 ```
 
-Первый контроль: 5 событий, 1 finding с count 5. Второй: 6 событий (4 ошибки,
-2 успеха), 0 findings. В обоих отчётах 3 записи аудита. Основной smoke test
-остаётся совместимым: `python tests/smoke.py`.
+Этот режим не даёт ОС-изоляции и не предназначен для внешних пользователей. Сервер намеренно нельзя привязать к `0.0.0.0`. HTTP loopback не заменяет TLS; не публикуйте порт через tunnel/proxy. Удалённое облако рассматривается отдельно в OPERATIONS.
+
+## Контейнерные проверки
+
+```bash
+docker build -t redblue-arena:lab .
+REDBLUE_DOCKER_TESTS=1 python -m unittest discover -s tests -p test_runner.py -v
+```
+
+Интеграционные проверки запускают реальный worker и проверяют non-root, read-only filesystem и отсутствие сетевой достижимости. Без флага 2 Docker-теста явно skipped. GitHub Actions содержит отдельный Docker job.
+
+## Диагностика
+
+| Симптом | Проверка |
+| --- | --- |
+| No module named redblue_arena | Запуск из корня checkout и правильный Python |
+| Role/scope отказ | Роль admin/analyst, tenant allowlist и подтверждение scope |
+| Worker failed | Docker daemon доступен; образ redblue-arena:lab собран; нет автоматического pull |
+| Database already in use | Остановите другой процесс, работающий с этой базой |
+| 429 | До 2 активных заданий на tenant, 100 заданий за 24 часа; HTTP до 120 запросов/мин глобально |
+| Audit integrity check failed | Остановите изменения и проверьте резервную копию; не сбрасывайте chain |
+
+Данные `.lab`, `.token`, SQLite и отчёты исключены из git. Не используйте реальные credentials или production-телеметрию в тестах и примерах.

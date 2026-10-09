@@ -2,3 +2,8 @@ __pycache__/
 *.py[cod]
 .venv/
 report.json
+.lab/
+*.sqlite
+*.sqlite.lock
+*.sqlite-journal
+*.token

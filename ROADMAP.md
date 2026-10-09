@@ -1,38 +1,30 @@
 # Roadmap
 
-## Выполнено — первый офлайн MVP
+## Выполнено — офлайн MVP
 
-- [x] Контракты сценариев, событий и детекторов.
-- [x] Явная авторизация и allowlist логических учебных целей.
-- [x] Синтетический сценарий, нормализация, detection и JSON-отчёт.
-- [x] Детерминированные проверки допуска и границ телеметрии.
-- [x] Модель угроз и инструкции запуска.
+- [x] Явная авторизация, allowlist, bounded synthetic telemetry, JSON report и CLI audit.
+- [x] Положительные/отрицательные fixtures на пороге и ниже, target isolation.
+- [x] GitHub Actions lint, format, unit и CLI smoke checks.
+- [x] Отдельная опубликованная Codex Cloud среда для redblue-arena; базовый commit 3658104 восстановлен и проверен без secrets.
 
-## Далее — качество обнаружения
+## Реализовано — версия 0.2.0 в PR
 
-- [x] Положительные и отрицательные наборы синтетических событий: выше порога, на пороге и ниже порога.
-- [ ] Версионируемые правила, временные окна и оценка false positives.
-- [ ] Отдельные пакеты модулей и документированный API расширений.
-- [x] Подтверждён успешный удалённый запуск CI на Python 3.12 для первого PR.
+- [x] Версионируемые правила, inclusive временные окна, configurable thresholds.
+- [x] Labelled synthetic evaluation, confusion matrix, FP rate/recall с оговоркой о synthetic-only данных.
+- [x] Отдельные modules packages, API v2 и documented migration/schema contracts.
+- [x] Фиксированные Docker workers с network none, non-root, read-only и ресурсными лимитами; отдельный integration CI job.
+- [x] Tenant-scoped token auth/RBAC, scope confirmation, quotas, cancellation/timeout.
+- [x] Постоянные SQLite jobs/audit, hash-chain verify, report retention, single-owner lock и restart без replay.
+- [x] Локальные dashboard и JSON API после негативных tenant/RBAC/scope/HTTP тестов.
+- [x] Operations, API, module extension guide, installation и обновлённая модель угроз.
 
-## Лабораторное облако
+## Инфраструктура и публичное облако — не выполнено
 
-- [ ] Изолированные задания, непривилегированные контейнеры, deny-by-default egress.
-- [ ] RBAC, подтверждение scope, квоты и остановка заданий.
-- [ ] Постоянный журнал аудита, политика хранения и разделение арендаторов.
-- [ ] Dashboard и API после тестов изоляции и проверки модели угроз.
+- [ ] Обновить и повторно проверить Codex Cloud snapshot на 0.2.0 после review/выбора commit.
+- [ ] Выбрать cloud provider и deployment account, TLS, external IdP/MFA и production server.
+- [ ] Отдельные runtime/VM boundaries для tenant, ingress/egress policies вне приложения.
+- [ ] Независимый append-only audit sink, backup/restore drill и automatic retention scheduler.
+- [ ] Независимые security tests, нагрузочные тесты и эксплуатационное согласование перед публичным доступом.
+- [ ] Закрепить digest проверенного базового container image и release artifacts.
 
-Реальные интеграции допускаются только после контроля сетевого scope. Произвольные shell-команды и загрузка непроверенных плагинов не входят в MVP.
-
-## Критерии готовности этапов
-
-| Этап | Условие завершения |
-| --- | --- |
-| Detection quality | Fixtures на пороге и ниже него; документированные false positives и ограничения |
-| Module API | Версионирование контрактов, пример безопасного расширения и совместимость схем |
-| Cloud lab | Тесты tenant isolation, RBAC, egress, остановки заданий и аудит отказов |
-| Public dashboard | Доступ по ролям, защищённые отчёты, эксплуатационная инструкция и обновлённая модель угроз |
-
-Сроки и облачный провайдер пока не зафиксированы. Публичный релиз не должен обещать контроля, который ещё не реализован.
-
-- [x] Опубликована отдельная Codex Cloud среда `redblue-arena`; восстановление и smoke test проверены 2026-10-09 для commit 3658104, без настроенных secrets. Новые изменения требуют повторной проверки.
+Real integrations, arbitrary commands и непроверенные plugins не входят в безопасную лабораторную реализацию. Наличие локальной платформы/CI не подтверждает production public-cloud readiness. PR остаются draft до review; планы не обозначаются как работающие гарантии.

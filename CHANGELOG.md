@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## Unreleased — 0.2.0
+
+- Модульный API v2, report schema v2, относительные timestamps, versioned configurable sliding-window rule.
+- Добавлены spread-logins и labelled fixture evaluation с confusion matrix, recall и false positive rate.
+- Реализован локальный SQLite control plane: hashed tokens, tenant-scoped RBAC/scope, квоты, очередь, cancel/timeout, restart без replay.
+- Добавлены Docker runner (network none, non-root, read-only, resource caps) и явно доверенный trusted-local режим без sandbox.
+- Реализованы tenant hash-chain audit, проверка целостности, report retention и single-owner database lock.
+- Добавлены loopback API/dashboard, Host/Origin/CSP guards, bounded requests и Docker integration job в CI.
+- Обновлены архитектура, модель угроз, установка, API, module migration и operations; публичное cloud hosting остаётся отдельным этапом.
 
 - Добавлены сценарии `threshold-logins` и `benign-logins`, примеры конфигураций и регрессионная матрица detection quality.
 - Проверены успешные входы, разделение целей, порог и обязательная авторизация новых сценариев.

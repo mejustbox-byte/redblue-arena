@@ -1,52 +1,42 @@
 # Architecture
 
-## Цель и текущее состояние
+## Версия 0.2.0
 
-RedBlue Arena объединяет воспроизводимую Red Team-эмуляцию и Blue Team-проверки. Версия 0.1.0 — однопользовательский офлайн CLI. Это основа облачной платформы, а не готовый сервис или сканер.
+Локальная лаборатория объединяет синтетический Red Team, нормализацию telemetry, Blue Team detection и контроль выполнения. Реальные exploit payloads, external targets и произвольные shell-команды отсутствуют.
 
-## Поток данных
+## Офлайн поток
 
-1. Оператор передаёт JSON-конфигурацию CLI.
-2. Оркестратор проверяет явную авторизацию, allowlist и имя сценария.
-3. Red Team-модуль создаёт синтетическую телеметрию в памяти.
-4. Telemetry проверяет формат, последовательность и принадлежность цели.
-5. Blue Team-детектор группирует ошибки входа по цели и применяет порог.
-6. Оркестратор возвращает единый JSON-отчёт с audit log.
+JSON config → validate authorization/allowlist → фиксированный Scenario → normalize Event v2 → RepeatedFailures Rule v2 → JSON report schema v2. События и отчёт создаются в памяти; CLI не хранит identity или постоянный audit.
 
-## Компоненты и контракты
+## Control plane поток
 
-| Компонент | Контракт | Ответственность |
+Loopback dashboard/API → authenticate hashed bearer token → tenant Principal → RBAC/scope/quota → SQLite queued job + audit → thread pool → повторная validate → fixed worker → completed/failed/cancelled → SQLite report + audit. Tenant привязан к токену; URL/body не выбирают tenant.
+
+| Компонент | Файл/пакет | Граница |
 | --- | --- | --- |
-| CLI | `python3 -m redblue_arena --config PATH` | Ограниченный ввод, JSON stdout, ошибки stderr |
-| Policy | `validate(config)` | Fail-closed перед генерацией событий |
-| Red Team | `Scenario.generate(target) -> list[Event]` | Только синтетические события |
-| Telemetry | `normalize(events, target)` | Проверка границ событий |
-| Blue Team | `Detector.detect(events) -> list[dict]` | Находки с rule_id, severity и count |
-| Orchestrator | `run(config) -> dict` | Связь модулей, отчёт и аудит |
+| Контракты | modules/contracts.py | Event v2, Scenario/Detector Protocol |
+| Red fixtures | modules/scenarios.py | 4 встроенных генератора, без сети |
+| Blue detection | modules/detections.py | Rule v2, inclusive sliding window |
+| Policy/telemetry/orchestration | core.py | Fail-closed config, bounded telemetry, report |
+| Evaluation | evaluation.py | Labelled synthetic controls, confusion matrix |
+| Worker protocol | worker.py | Один bounded stdin JSON → report stdout |
+| Runtime | runner.py | Docker isolation или explicit trusted-local |
+| Control plane/storage | control.py | SQLite transactions, tenant scopes, quotas, job lifecycle, hash-chain |
+| API | web.py | Loopback, Host/Origin, bearer roles, payload/rate limits |
+| UI | dashboard.py | Same-origin static HTML/JS, in-memory token, textContent |
 
-Реализация контрактов: `redblue_arena/core.py`; CLI: `redblue_arena/__main__.py`. Реестр сценариев фиксирован в коде. Конфигурация не импортирует модули и не запускает shell.
+## Схемы и совместимость
 
-## Схемы MVP
+Report schema_version=2: mode=synthetic-offline, scenario, target, rule, events, findings, audit. Схема event/window и migration описаны в MODULE-API.md. Evaluation имеет самостоятельную schema_version=1; это не старый report v1.
 
-`Event`: sequence (порядковый номер с 1), target, kind (`authentication`), outcome (`failure` или `success`), synthetic (`true`). Проверка допускает только выбранную цель и непрерывную последовательность.
+CLI audit содержит три записи об одном запуске. Persistent audit control plane добавляет identity, lifecycle и отказы с tenant-scoped sequence/previous/digest. SQLite хранит только token hashes. На отчёты действует retention; metadata сохраняются для квот и forensic history.
 
-Отчёт: schema_version (`1`), mode (`synthetic-offline`), scenario, target, events, findings и audit. Finding содержит rule_id, target, severity, count и threshold. Audit отражает допуск, завершение сценария и detection; отклонённый ввод возвращается через stderr и пока не записывается в постоянный журнал.
+## Изоляция
 
-Правило `auth.repeated_failures` срабатывает при пяти и более ошибках одной цели в одном запуске. Оно не использует временное окно, аккаунт или IP; severity `medium` — лабораторная метка. Результат не доказывает эффективность обнаружения на реальном трафике.
+Docker runner не монтирует host/daemon socket, не публикует порты, отключает network, удаляет capabilities и использует read-only filesystem, non-root и resource limits. Docker host доверенный. Python Protocol не является sandbox. Trusted-local subprocess предназначен только для встроенного доверенного кода. ControlPlane Python API доверенный: сервер создаёт Principal через authenticate.
 
-## Облачная архитектура — план
+Один процесс владеет SQLite через POSIX flock; после рестарта queued/running не повторяются, а становятся failed. Лимиты, cancellation и retention описаны в OPERATIONS.md. SQLite chain не является внешним неизменяемым audit sink.
 
-Будущие компоненты: API/control plane, policy engine, очередь ограниченных заданий, изолированные workers, хранилище отчётов, защищённый аудит и dashboard. Red-модули выполняются в worker; Blue-модули получают только разрешённую телеметрию. Идентичность пользователя, tenant и scope должны сопровождать задание и все обращения к данным.
+## Внешнее облако
 
-До публичного API необходимы RBAC, tenant isolation, лимиты ресурсов и времени, остановка заданий, deny-by-default egress и политика хранения. В MVP отсутствуют HTTP endpoints, БД, контейнерный runtime, агенты, сбор реальных логов и аутентификация.
-
-## Расширения
-
-Новый сценарий реализует `Scenario`, регистрируется явно, документирует ожидаемые события и имеет положительные и отрицательные проверки. Новый детектор реализует `Detector` и описывает ограничения правила. Изменение event/report schema требует обновления документации и совместимости потребителей; произвольная загрузка внешнего кода не поддерживается.
-
-## Синтетические контрольные наборы
-
-Фиксированный реестр содержит `failed-logins` (6 ошибок), `threshold-logins`
-(5 ошибок) и `benign-logins` (4 ошибки и 2 успеха). Последний — отрицательный
-контроль, а не классификатор легитимного поведения. Все проходят одну и ту же
-policy и нормализацию, без сетевых операций. Схема отчёта остаётся версии 1.
+Требует отдельного control-plane server с TLS/identity provider, защищённого хранилища и worker runtime/VM boundaries, централизованного аудита и эксплуатационной проверки. Текущая реализация проверяет локальные application boundaries и container worker policy; она не гарантирует изоляцию от привилегированного владельца общего Docker host.

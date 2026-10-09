@@ -28,3 +28,9 @@ git diff --check
 ## Публичный OPSEC
 
 Примеры используют только `lab://` и вымышленные события. Перед PR проверьте diff на секреты, внутренние адреса, локальные пути, идентификаторы клиентов и содержимое отчётов. Уязвимости не публикуйте в обычном issue: следуйте SECURITY.md. Проект не принимает реальные эксплойты или инструкции для несанкционированных атак.
+
+## Проверки платформы 0.2.0
+
+Модули/API и миграция описаны в MODULE-API.md, HTTP endpoints — в API.md. Для control plane обязательны тесты tenant isolation, RBAC denial, scope, quotas, cancel/timeout, restart, audit tamper detection, retention и HTTP Host/Origin. REDBLUE_DOCKER_TESTS=1 включает реальные проверки контейнера после build. Никогда не подменяйте skipped Docker tests утверждением об успешной изоляции.
+
+Изменение JSON schema требует явного schema_version и migration note. Не обещайте public cloud readiness по результатам local HTTP tests. Dev data, tokens и databases должны оставаться вне git.

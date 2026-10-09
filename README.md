@@ -1,67 +1,46 @@
 # RedBlue Arena
 
-Публичная модульная платформа безопасной эмуляции атак и проверки обнаружения для авторизованных лабораторий. Лицензия MIT.
+Публичный проект модульной безопасной эмуляции и проверки обнаружения для авторизованных лабораторий. MIT [LICENSE](LICENSE).
 
-## Рабочий MVP 0.1.0
+## Реализовано в 0.2.0
 
-Первый вертикальный срез полностью офлайн: сценарий создаёт шесть синтетических событий неудачного входа, telemetry проверяет их контракт, detection обнаруживает пять и более ошибок для одной цели, оркестратор формирует JSON с событиями, находками и audit log.
+- Четыре детерминированных синтетических сценария, строгий scope и явная авторизация.
+- Правило `auth.repeated_failures` v2: настраиваемый порог и временное окно.
+- Оценка control fixtures: confusion matrix, recall и false positive rate.
+- Отдельный API модулей v2 без загрузки произвольного кода.
+- Локальный control plane: bearer-токены, tenant-scoped RBAC, SQLite, квоты, очередь, отмена и timeout.
+- Непривилегированные Docker workers без сети, capabilities и записи в root filesystem.
+- Постоянный tenant-scoped hash-chain аудит, проверка целостности и очистка устаревших отчётов.
+- Dashboard и JSON API только на `127.0.0.1` с проверкой Host/Origin, без CORS.
 
-```bash
-python3 -m redblue_arena --config examples/lab.json
-python3 -m unittest discover -s tests -v
-```
+Это исполняемая локальная лабораторная платформа. Публичный облачный сервис пока не развёрнут: TLS, внешний identity provider, отдельный runtime для арендаторов и эксплуатационная проверка требуют инфраструктуры. Codex Cloud — среда разработки, а не hosting платформы.
 
-Нужен Python 3.12.x; сторонних зависимостей нет. Команды выполняются из корня репозитория.
+## Быстрый офлайн запуск
 
-## Модули
-
-| Модуль | Интерфейс | Реализация MVP |
-| --- | --- | --- |
-| attack-sim | `Scenario.generate(target)` | `FailedLogins`, фиксированный реестр |
-| telemetry | `normalize(events, target)` | Проверка синтетических событий |
-| detections | `Detector.detect(events)` | `RepeatedFailures` |
-| orchestration | `run(config)` | Проверка допуска, отчёт и аудит |
-| dashboard | Будущий интерфейс | Пока JSON CLI |
-
-Контракты находятся в `redblue_arena/core.py`. Имена сценариев выбираются из фиксированного реестра: конфигурация не загружает код или команды.
-
-## Границы
-
-MVP не подключается к целям: `lab://training` — логический идентификатор. Перед запуском обязательны `authorized: true` и совпадение цели с allowlist. Это декларация оператора, а не проверка юридического разрешения. Журнал встроен в отчёт и пока не защищён от изменения. Облачное развёртывание, реальные агенты и многопользовательский режим ещё не реализованы.
-
-См. [INSTALL](INSTALL.md), [ROADMAP](ROADMAP.md), [SECURITY](SECURITY.md), [модель угроз](docs/THREAT_MODEL.md), [CHANGELOG](CHANGELOG.md) и [LICENSE](LICENSE).
-
-## Сценарии использования
-
-- Учебная демонстрация Red/Blue: запустите пример, сопоставьте шесть событий с одной находкой.
-- Регрессионная проверка detection: тестовый набор ниже порога должен дать пустой список findings, набор на пороге — находку.
-- Проверка policy: измените target на отсутствующий в allowlist учебный идентификатор; ожидается отказ с кодом 2.
-- Разработка модуля: реализуйте контракт на синтетических данных и добавьте тесты до регистрации.
-
-Сценарий `failed-logins` не выполняет попытки входа. Он создаёт вымышленные события. Между запусками состояние не сохраняется.
-
-## Разработка и документация
-
-[ARCHITECTURE.md](ARCHITECTURE.md) раскрывает компоненты и схемы, [THREAT-MODEL.md](THREAT-MODEL.md) — границы доверия и риски, [CONTRIBUTING.md](CONTRIBUTING.md) — процесс внесения изменений. Тесты запускаются через unittest; GitHub Actions CI прошёл успешно для первого PR.
-
-Выбранный стек, версии и статус проверки среды: [TECH-STACK.md](TECH-STACK.md).
-
-## Проверка качества обнаружения
-
-Все сценарии создают только синтетические события и требуют той же авторизации и allowlist.
-
-| Сценарий | Конфигурация | События | Ошибки входа | Findings |
-| --- | --- | --- | --- | --- |
-| `failed-logins` | `examples/lab.json` | 6 | 6 | 1 |
-| `threshold-logins` | `examples/threshold.json` | 5 | 5 | 1 |
-| `benign-logins` | `examples/benign.json` | 6 | 4 | 0 |
+Требуется Python 3.12.x; runtime использует только стандартную библиотеку.
 
 ```bash
-python -m redblue_arena --config examples/threshold.json
-python -m redblue_arena --config examples/benign.json
+python -m redblue_arena --config examples/lab.json
+python -m redblue_arena --config examples/lab.json --evaluate
+python -m unittest discover -s tests -v
+python tests/smoke.py
 ```
 
-Наборы проверяют границу порога, успешные входы и разделение целей. На этих
-учебных примерах ложных срабатываний нет; это не оценка production false positive rate.
-Пять обычных ошибок одной цели всё равно вызовут находку: правило пока не учитывает
-время и аккаунты. Версионирование правил и временные окна остаются в roadmap.
+| Сценарий | Конфигурация | События | Ожидаемые findings с правилом по умолчанию |
+| --- | --- | --- | --- |
+| failed-logins | examples/lab.json | 6 ошибок за 5 секунд | 1 |
+| threshold-logins | examples/threshold.json | 5 ошибок за 4 секунды | 1 |
+| benign-logins | examples/benign.json | 4 ошибки, 2 успеха | 0 |
+| spread-logins | examples/spread.json | 6 ошибок с интервалом 61 секунда | 0 |
+
+Время вымышленное и относительно начала задания. Генераторы ничего не ждут и не выполняют попытки входа. `lab://training` — логический идентификатор, а не адрес.
+
+Для dashboard, provision, запуска workers и API см. [INSTALL.md](INSTALL.md) и [API.md](API.md). Для модулей и миграции JSON schema v1 → v2 см. [MODULE-API.md](MODULE-API.md).
+
+## Безопасность и ограничения
+
+`authorized: true` и `scope_confirmed: true` — декларации оператора, а не юридическая проверка. В HTTP API роль, tenant scope и квоты проверяются сервером. Каждый worker повторно валидирует конфигурацию. Реальные эксплойты, команды, сетевые адреса и непроверенные плагины не принимаются.
+
+Docker — режим по умолчанию; его отсутствие вызывает отказ. `trusted-local` разрешён только для доверенных встроенных модулей на собственном компьютере: subprocess не является sandbox. SQLite и hash-chain не защищают от владельца хоста, способного переписать всю базу. Токены не сохраняются в репозитории или localStorage.
+
+См. [SECURITY.md](SECURITY.md), [THREAT-MODEL.md](THREAT-MODEL.md), [ARCHITECTURE.md](ARCHITECTURE.md), [TECH-STACK.md](TECH-STACK.md), [ROADMAP.md](ROADMAP.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [OPERATIONS.md](OPERATIONS.md).

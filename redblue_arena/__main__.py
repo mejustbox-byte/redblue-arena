@@ -4,18 +4,23 @@ import sys
 from pathlib import Path
 
 from .core import run
+from .evaluation import evaluate
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="RedBlue Arena: offline synthetic lab")
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument(
+        "--evaluate", action="store_true", help="Evaluate synthetic control fixtures"
+    )
     args = parser.parse_args()
     try:
         with args.config.open("rb") as stream:
             raw = stream.read(65537)
         if len(raw) > 65536:
             raise ValueError("Config exceeds 64 KiB")
-        report = run(json.loads(raw))
+        config = json.loads(raw)
+        report = evaluate(config) if args.evaluate else run(config)
     except (OSError, ValueError) as exc:
         print(json.dumps({"status": "rejected", "error": str(exc)}), file=sys.stderr)
         return 2
