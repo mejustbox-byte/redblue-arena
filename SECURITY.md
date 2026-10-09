@@ -1,10 +1,19 @@
 # Security Policy
 
-Use this project only in systems you own or are explicitly authorized to test.
-Do not submit real credentials, personal data, exploit payloads, or production
-telemetry in issues or pull requests.
+Используйте проект только в собственных или явно разрешённых лабораториях. Не публикуйте реальные секреты, персональные данные или production-телеметрию в issues, PR или отчётах.
 
-Report vulnerabilities privately through GitHub Security Advisories. Include
-the affected version, a minimal safe reproduction, impact, and remediation
-suggestion. Do not test against third-party infrastructure.
+## Поддержка
 
+На текущем этапе исправления безопасности выпускаются для последнего состояния `main`. Версия MVP — 0.1.0; публичного облачного сервиса пока нет.
+
+## Сообщение об уязвимости
+
+Используйте приватное сообщение через GitHub Security Advisories / Report a vulnerability, если этот канал включён владельцем. Если он недоступен, создайте issue только с просьбой предоставить приватный канал, без технических деталей уязвимости. Согласованный SLA пока отсутствует.
+
+Укажите версию или commit, безопасное минимальное воспроизведение, влияние и предлагаемое исправление. Не проверяйте чужие системы.
+
+## Ограничения MVP
+
+Сценарии создают только синтетические события в памяти. Конфигурация не принимает команды, сетевые адреса или пути плагинов. Авторизация декларативная; audit log не является неизменяемым. Для облачного режима требуются отдельные механизмы изоляции, RBAC и контроля egress.
+
+Полная [модель угроз](THREAT-MODEL.md). MIT [LICENSE](LICENSE) применяется к коду и документации; этот документ описывает безопасное использование и не изменяет лицензию.
