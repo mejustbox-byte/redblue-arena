@@ -46,12 +46,12 @@ jobs:
         run: |
           set -euo pipefail
           version=$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          if [ "$version" != "0.2.0" ]; then
-            echo 'This release job is scoped to the approved 0.2.0 release only.'
+          if [ "$version" != "0.2.1" ]; then
+            echo 'This release job is scoped to the approved 0.2.1 release only.'
             exit 0
           fi
-          if gh release view v0.2.0 --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            echo 'v0.2.0 already published; preserving the existing release.'
+          if gh release view v0.2.1 --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo 'v0.2.1 already published; preserving the existing release.'
             exit 0
           fi
-          gh release create v0.2.0 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'RedBlue Arena 0.2.0 — local lab platform' --notes-file RELEASE-NOTES.md
+          gh release create v0.2.1 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'RedBlue Arena 0.2.1 — local lab platform' --notes-file RELEASE-NOTES.md

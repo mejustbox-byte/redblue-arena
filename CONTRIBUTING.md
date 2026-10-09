@@ -38,3 +38,5 @@ git diff --check
 ## Выпуск 0.2.0
 
 После одобренного слияния push main запускает test/Docker gates. Только при их успехе release job с contents:write создаёт v0.2.0 и публикует RELEASE-NOTES.md через временный Actions token. Повторный запуск сохраняет существующий релиз; будущие версии требуют отдельного изменения release job. Не переносите права release job в test job.
+
+Выпуск 0.2.1 использует тот же main test/Docker gate; release job ограничен только 0.2.1 и сохраняет прежний тег 0.2.0. Перед изменениями UI/docs выполняйте scripts/verify_assets.py через dev check. Ручной host evidence оформляется по LOCAL-INFRA-CHECKS.md.
