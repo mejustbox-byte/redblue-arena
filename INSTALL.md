@@ -17,7 +17,7 @@ Windows: активируйте окружение через `.venv\Scripts\act
 
 ## Конфигурация
 
-Скопируйте `examples/lab.json`. Укажите своё явное разрешение в `authorized`, учебные идентификаторы в `allowed_targets`, выбранную `target` и сценарий `failed-logins`. Разрешены только идентификаторы `lab://` с непустым суффиксом из строчных латинских букв, цифр, дефиса и подчёркивания. Не указывайте IP, URL, пароли или реальные логи.
+Скопируйте `examples/lab.json`. Укажите своё явное разрешение в `authorized`, учебные идентификаторы в `allowed_targets`, выбранную `target` и сценарий из таблицы в README (`failed-logins`, `threshold-logins` или `benign-logins`). Разрешены только идентификаторы `lab://` с непустым суффиксом из строчных латинских букв, цифр, дефиса и подчёркивания. Не указывайте IP, URL, пароли или реальные логи.
 
 Успешный запуск возвращает код 0 и JSON в stdout: 6 событий, 1 finding и 3 записи аудита. Недопустимая конфигурация возвращает код 2 и JSON с причиной в stderr; сценарий не запускается. Размер конфигурации ограничен 64 KiB.
 
@@ -48,7 +48,7 @@ Windows: активируйте окружение через `.venv\Scripts\act
 | No module named redblue_arena | Запускается ли команда из корня репозитория |
 | Explicit laboratory authorization is required | Явное разрешение `authorized: true` |
 | Target is outside the allowlist | Точное совпадение target с записью allowlist |
-| Unknown scenario | Сценарий `failed-logins` |
+| Unknown scenario | Имя из фиксированного реестра в README |
 | Ошибка JSON или чтения | Синтаксис, права и путь конфигурации |
 
 Отчёты и конфигурации храните в учебном окружении. Перед публикацией проверьте их содержимое. CLI не создаёт сервис и не требует открытия портов.
@@ -63,3 +63,15 @@ docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-
 ```
 
 Сборка требует доступа к registry образов. Dockerfile ещё не проверен сборкой в текущей среде; доступного Docker здесь нет. Не публикуйте порты.
+
+## Положительный и отрицательный контроль
+
+```bash
+python -m redblue_arena --config examples/threshold.json
+python -m redblue_arena --config examples/benign.json
+python -m unittest discover -s tests -v
+```
+
+Первый контроль: 5 событий, 1 finding с count 5. Второй: 6 событий (4 ошибки,
+2 успеха), 0 findings. В обоих отчётах 3 записи аудита. Основной smoke test
+остаётся совместимым: `python tests/smoke.py`.

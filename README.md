@@ -45,3 +45,23 @@ MVP не подключается к целям: `lab://training` — логич
 [ARCHITECTURE.md](ARCHITECTURE.md) раскрывает компоненты и схемы, [THREAT-MODEL.md](THREAT-MODEL.md) — границы доверия и риски, [CONTRIBUTING.md](CONTRIBUTING.md) — процесс внесения изменений. Тесты запускаются через unittest; GitHub Actions CI прошёл успешно для первого PR.
 
 Выбранный стек, версии и статус проверки среды: [TECH-STACK.md](TECH-STACK.md).
+
+## Проверка качества обнаружения
+
+Все сценарии создают только синтетические события и требуют той же авторизации и allowlist.
+
+| Сценарий | Конфигурация | События | Ошибки входа | Findings |
+| --- | --- | --- | --- | --- |
+| `failed-logins` | `examples/lab.json` | 6 | 6 | 1 |
+| `threshold-logins` | `examples/threshold.json` | 5 | 5 | 1 |
+| `benign-logins` | `examples/benign.json` | 6 | 4 | 0 |
+
+```bash
+python -m redblue_arena --config examples/threshold.json
+python -m redblue_arena --config examples/benign.json
+```
+
+Наборы проверяют границу порога, успешные входы и разделение целей. На этих
+учебных примерах ложных срабатываний нет; это не оценка production false positive rate.
+Пять обычных ошибок одной цели всё равно вызовут находку: правило пока не учитывает
+время и аккаунты. Версионирование правил и временные окна остаются в roadmap.

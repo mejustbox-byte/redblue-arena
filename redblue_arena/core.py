@@ -26,6 +26,23 @@ class FailedLogins:
         return [Event(i, target, "authentication", "failure") for i in range(1, 7)]
 
 
+class ThresholdLogins:
+    """Positive fixture exactly at the detection threshold."""
+
+    def generate(self, target: str) -> list[Event]:
+        return [Event(i, target, "authentication", "failure") for i in range(1, 6)]
+
+
+class BenignLogins:
+    """Negative fixture: four failures mixed with successful logins."""
+
+    def generate(self, target: str) -> list[Event]:
+        outcomes = ("failure", "success", "failure", "success", "failure", "failure")
+        return [
+            Event(i, target, "authentication", outcome) for i, outcome in enumerate(outcomes, 1)
+        ]
+
+
 class RepeatedFailures:
     def detect(self, events: list[Event]) -> list[dict]:
         counts: dict[str, int] = {}
@@ -45,7 +62,11 @@ class RepeatedFailures:
         ]
 
 
-SCENARIOS: dict[str, Scenario] = {"failed-logins": FailedLogins()}
+SCENARIOS: dict[str, Scenario] = {
+    "failed-logins": FailedLogins(),
+    "threshold-logins": ThresholdLogins(),
+    "benign-logins": BenignLogins(),
+}
 
 
 def validate(config: dict) -> tuple[str, str]:
