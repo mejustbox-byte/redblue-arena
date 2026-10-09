@@ -42,6 +42,6 @@ MVP не подключается к целям: `lab://training` — логич
 
 ## Разработка и документация
 
-[ARCHITECTURE.md](ARCHITECTURE.md) раскрывает компоненты и схемы, [THREAT-MODEL.md](THREAT-MODEL.md) — границы доверия и риски, [CONTRIBUTING.md](CONTRIBUTING.md) — процесс внесения изменений. Тесты запускаются через unittest; конфигурация CI добавлена, удалённый результат ещё не проверен.
+[ARCHITECTURE.md](ARCHITECTURE.md) раскрывает компоненты и схемы, [THREAT-MODEL.md](THREAT-MODEL.md) — границы доверия и риски, [CONTRIBUTING.md](CONTRIBUTING.md) — процесс внесения изменений. Тесты запускаются через unittest; GitHub Actions CI прошёл успешно для первого PR.
 
 Выбранный стек, версии и статус проверки среды: [TECH-STACK.md](TECH-STACK.md).
