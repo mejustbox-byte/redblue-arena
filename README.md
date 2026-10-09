@@ -59,4 +59,4 @@ Docker — режим по умолчанию; его отсутствие вы�
 
 Проверенные результаты code commit 0.2.0: [VERIFICATION.md](VERIFICATION.md).
 
-Состав и ограничения выпуска: [RELEASE-NOTES.md](RELEASE-NOTES.md). GitHub Release публикуется после слияния и успешных test/Docker jobs; существующий тег не перезаписывается.
+Состав и ограничения выпуска: [RELEASE-NOTES.md](RELEASE-NOTES.md). [GitHub Release v0.2.0](https://github.com/mejustbox-byte/redblue-arena/releases/tag/v0.2.0) опубликован после слияния и успешных test/Docker jobs; существующий тег не перезаписывается.

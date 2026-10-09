@@ -34,3 +34,9 @@ Snapshot опубликован на code commit выше, detached HEAD доп�
 ## Финальная среда разработки
 
 scripts/dev.py check прошёл локально: pip check, lint/format (21 Python files), 27 passed/2 Docker skipped, 4 smoke fixtures, evaluation TP2/TN2/FP0/FN0. Setup проверен в новом временном checkout/venv и повторно в том же окружении; постоянные lab data не создаются. CI использует тот же setup; release job разрешён только на push main после успешных test и docker jobs, только для 0.2.0 и без перезаписи существующего выпуска. Секрет GITHUB_TOKEN предоставляется Actions во время job, не хранится в проекте. Финальный результат CI/релиза проверяется через GitHub; прежний Cloud snapshot не объявляется обновлённым этим workflow.
+
+## Опубликованный выпуск
+
+2026-10-09 PR #3 слит в main: `89d0d903be047c89782b698f448c9ff59dfa3712`. [Итоговый CI run 37889685520](https://github.com/mejustbox-byte/redblue-arena/actions/runs/37889685520) завершился success: test, docker и release. PR gate [37889615160](https://github.com/mejustbox-byte/redblue-arena/actions/runs/37889615160) также прошёл перед слиянием.
+
+[GitHub Release v0.2.0](https://github.com/mejustbox-byte/redblue-arena/releases/tag/v0.2.0) опубликован, draft=false, prerelease=false; lightweight tag указывает точно на commit выше. Доступны стандартные source archives GitHub, дополнительных binary/container assets нет. PR #1 включён через историю объединённого PR; PR #2 закрыт как superseded, его изменения присутствуют в main. Эта финальная запись изменяет только документацию; release tag и code не перезаписываются. Codex Cloud snapshot остаётся на 2f9b651, как описано выше.
