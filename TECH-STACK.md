@@ -1,4 +1,4 @@
-# Tech stack — версия 0.2.0
+# Tech stack — версия 0.2.1
 
 | Слой | Выбор | Статус |
 | --- | --- | --- |
@@ -30,3 +30,5 @@ Setup устанавливает только dev dependency из requirements-d
 Сеть ограничена preset менеджеров пакетов. Это не полное OS deny-egress среды разработки; network=none реализован отдельно для Docker worker. HTTP tests требуют loopback sockets. Docker integration проверена в CI, а не в restored Cloud. Codex Cloud не является hosting приложения.
 
 Repository-owned setup command для нового checkout: `python3.12 scripts/dev.py setup`. Результаты и границы проверок — [VERIFICATION.md](VERIFICATION.md). Историческая baseline snapshot 3658104 проверялась отдельно до реализации платформы.
+
+Dev/CI gate 0.2.1 дополнительно требует Node.js для --check статического dashboard JS; npm dependencies отсутствуют. Проверяются локальные Markdown-ссылки. [LOCAL-INFRA-CHECKS.md](LOCAL-INFRA-CHECKS.md) отделяет CI от приёмки конкретного host.

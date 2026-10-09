@@ -2,7 +2,7 @@
 
 ## Runtime и проверки
 
-CLI: CPython 3.12.x. Control plane: Linux или macOS (POSIX file locking); Windows поддерживается только для офлайн CLI. Dev-зависимость — Ruff 0.15.0.
+CLI: CPython 3.12.x. Control plane: Linux или macOS (POSIX file locking); Windows поддерживается только для офлайн CLI. Dev-зависимость — Ruff 0.15.0; для полного setup/check нужен Node.js (проверка JS syntax, без npm packages). Node не нужен для запуска приложения.
 
 ```bash
 git clone https://github.com/mejustbox-byte/redblue-arena.git
@@ -13,7 +13,7 @@ python3.12 scripts/dev.py doctor
 python3.12 scripts/dev.py check
 ```
 
-Для воспроизводимой версии используйте `git checkout v0.2.0` (опубликованный source release); разработку продолжайте в отдельной ветке от main. Setup проверяет Python до изменений, создаёт `.venv`, устанавливает Ruff и запускает lint/format, unit/HTTP, CLI smoke и evaluation. Повторный setup не удаляет окружение. `check` не устанавливает пакеты; переменная REDBLUE_DOCKER_TESTS не включает Docker незаметно. Сетевой доступ нужен для pip, а с `--docker` — для сборки базового образа. Настройка не создаёт identity, базу или постоянный сервер.
+Для воспроизводимой версии используйте `git checkout v0.2.1` (опубликованный source release); разработку продолжайте в отдельной ветке от main. Setup проверяет Python до изменений, создаёт `.venv`, устанавливает Ruff и запускает lint/format, unit/HTTP, CLI smoke и evaluation. Повторный setup не удаляет окружение. `check` не устанавливает пакеты; переменная REDBLUE_DOCKER_TESTS не включает Docker незаметно. Сетевой доступ нужен для pip, а с `--docker` — для сборки базового образа. Настройка не создаёт identity, базу или постоянный сервер.
 
 На Windows доступен только офлайн CLI: вручную создайте venv через Python 3.12, установите requirements-dev.txt и активируйте `.venv\Scripts\activate`. Полная команда setup/check и control-plane тесты требуют POSIX. Не копируйте venv между ОС или checkout: создайте его заново в новом каталоге.
 
@@ -87,3 +87,5 @@ python3.12 scripts/dev.py check --docker
 | Audit integrity check failed | Остановите изменения и проверьте резервную копию; не сбрасывайте chain |
 
 Данные `.lab`, `.token`, SQLite и отчёты исключены из git. Не используйте реальные credentials или production-телеметрию в тестах и примерах.
+
+Ручная приёмка конкретного host и статусы непроверенной инфраструктуры: [LOCAL-INFRA-CHECKS.md](LOCAL-INFRA-CHECKS.md).

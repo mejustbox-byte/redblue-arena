@@ -2,7 +2,7 @@
 
 Публичный проект модульной безопасной эмуляции и проверки обнаружения для авторизованных лабораторий. MIT [LICENSE](LICENSE).
 
-## Реализовано в 0.2.0
+## Реализовано в 0.2.1
 
 - Четыре детерминированных синтетических сценария, строгий scope и явная авторизация.
 - Правило `auth.repeated_failures` v2: настраиваемый порог и временное окно.
@@ -17,7 +17,7 @@
 
 ## Среда разработки
 
-Из корня checkout на Linux/macOS с CPython 3.12.x:
+Из корня checkout на Linux/macOS с CPython 3.12.x и Node.js для проверки JavaScript:
 
 ```bash
 python3.12 scripts/dev.py setup
@@ -60,3 +60,5 @@ Docker — режим по умолчанию; его отсутствие вы�
 Проверенные результаты code commit 0.2.0: [VERIFICATION.md](VERIFICATION.md).
 
 Состав и ограничения выпуска: [RELEASE-NOTES.md](RELEASE-NOTES.md). [GitHub Release v0.2.0](https://github.com/mejustbox-byte/redblue-arena/releases/tag/v0.2.0) опубликован после слияния и успешных test/Docker jobs; существующий тег не перезаписывается.
+
+Версия 0.2.1 добавляет assets gate и [чек-лист локальной инфраструктуры](LOCAL-INFRA-CHECKS.md). Ручные host/browser/backup/load проверки отмечены not-run; автоматические Docker проверки выполняются в CI.

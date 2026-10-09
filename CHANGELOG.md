@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 — 2026-10-09
+
+- Повторный полный автоматический gate; Docker integration проверяется отдельно в CI.
+- Добавлен обязательный dev/CI gate для локальных Markdown-ссылок и синтаксиса dashboard JavaScript (Node.js нужен только разработчику).
+- LOCAL-INFRA-CHECKS.md фиксирует команды, критерии и not-run статус browser E2E, локального Docker, socket bind, data permissions, backup/restore, crash/restart, retention и host load checks.
+- Runtime поведение и report/module API v2 не меняются; выпуск фиксирует проверяемость и эксплуатационные ограничения.
+
 ## 0.2.0 — 2026-10-09
 
 - Добавлены scripts/dev.py setup/check/doctor и единый CI gate. Setup воспроизводит среду без создания токенов/баз; Docker проверки включаются явно.

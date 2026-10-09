@@ -50,6 +50,7 @@ def check(docker: bool) -> None:
         "-v",
     )
     run(str(PYTHON), "tests/smoke.py")
+    run(str(PYTHON), "scripts/verify_assets.py")
     run(str(PYTHON), "-m", "redblue_arena", "--config", "examples/lab.json", "--evaluate")
     if docker:
         executable = shutil.which("docker")

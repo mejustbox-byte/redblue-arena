@@ -40,3 +40,9 @@ scripts/dev.py check прошёл локально: pip check, lint/format (21 P
 2026-10-09 PR #3 слит в main: `89d0d903be047c89782b698f448c9ff59dfa3712`. [Итоговый CI run 37889685520](https://github.com/mejustbox-byte/redblue-arena/actions/runs/37889685520) завершился success: test, docker и release. PR gate [37889615160](https://github.com/mejustbox-byte/redblue-arena/actions/runs/37889615160) также прошёл перед слиянием.
 
 [GitHub Release v0.2.0](https://github.com/mejustbox-byte/redblue-arena/releases/tag/v0.2.0) опубликован, draft=false, prerelease=false; lightweight tag указывает точно на commit выше. Доступны стандартные source archives GitHub, дополнительных binary/container assets нет. PR #1 включён через историю объединённого PR; PR #2 закрыт как superseded, его изменения присутствуют в main. Эта финальная запись изменяет только документацию; release tag и code не перезаписываются. Codex Cloud snapshot остаётся на 2f9b651, как описано выше.
+
+## Повторная проверка 0.2.1
+
+На checkout от main e0ebce8 выполнен dev check для 0.2.1: pip/Ruff, unit/HTTP/worker, CLI fixtures, evaluation; assets gate проверяет Markdown и JS syntax. Локальный runtime Python 3.12.14, Ruff 0.15.0. Docker отсутствует в этой execution среде: два tests здесь skipped, их выполнение обязательно в отдельном CI job перед слиянием/релизом. Последующий release main run является evidence именно тега v0.2.1, а не старого v0.2.0; результат можно проверить в Actions по commit тега.
+
+Ручная приёмка реального пользовательского host не выполнена: [LOCAL-INFRA-CHECKS.md](LOCAL-INFRA-CHECKS.md) фиксирует not-run статусы и критерии. JS syntax не является browser E2E; SQLite unit tests не являются host backup/restore drill. Эти ограничения сохраняются в release notes.

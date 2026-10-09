@@ -34,3 +34,9 @@
 - [x] v0.2.0 опубликован после CI на main (run 37889685520): source tag/release на commit 89d0d90; будущие версии требуют отдельного решения.
 
 Real integrations, arbitrary commands и непроверенные plugins не входят в безопасную лабораторную реализацию. Наличие локальной платформы/CI не подтверждает production public-cloud readiness. Слияние и выпуск разрешены владельцем после проверок; планы не обозначаются как работающие гарантии.
+
+## Проверяемость 0.2.1
+
+- [x] Assets gate: локальные Markdown-ссылки и dashboard JS syntax.
+- [x] Команды и критерии ручной приёмки оформлены в LOCAL-INFRA-CHECKS.md с not-run статусами.
+- [ ] Приёмка конкретного пользовательского host: browser E2E, Docker daemon, права, restore/crash/load evidence.
