@@ -44,3 +44,5 @@ python tests/smoke.py
 Docker — режим по умолчанию; его отсутствие вызывает отказ. `trusted-local` разрешён только для доверенных встроенных модулей на собственном компьютере: subprocess не является sandbox. SQLite и hash-chain не защищают от владельца хоста, способного переписать всю базу. Токены не сохраняются в репозитории или localStorage.
 
 См. [SECURITY.md](SECURITY.md), [THREAT-MODEL.md](THREAT-MODEL.md), [ARCHITECTURE.md](ARCHITECTURE.md), [TECH-STACK.md](TECH-STACK.md), [ROADMAP.md](ROADMAP.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [OPERATIONS.md](OPERATIONS.md).
+
+Проверенные результаты code commit 0.2.0: [VERIFICATION.md](VERIFICATION.md).

@@ -20,7 +20,7 @@
 
 ## Инфраструктура и публичное облако — не выполнено
 
-- [ ] Обновить и повторно проверить Codex Cloud snapshot на 0.2.0 после review/выбора commit.
+- [x] Codex Cloud snapshot обновлён на 0.2.0 commit 2f9b651 и восстановлен в новой задаче; результаты в VERIFICATION.md. PR остаются draft.
 - [ ] Выбрать cloud provider и deployment account, TLS, external IdP/MFA и production server.
 - [ ] Отдельные runtime/VM boundaries для tenant, ingress/egress policies вне приложения.
 - [ ] Независимый append-only audit sink, backup/restore drill и automatic retention scheduler.

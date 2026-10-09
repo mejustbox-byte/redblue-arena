@@ -59,4 +59,4 @@ Runtime остаётся CPython 3.12.x без сторонних пакетов
 
 UI: статические HTML/JavaScript same-origin без bundler и сторонних зависимостей. Docker integration job выполняет сборку и проверку worker boundaries отдельно от unit/HTTP tests. Публичный hosting/IdP/БД за пределами одного host потребуют отдельного решения; это не скрытое изменение ранее выбранного стека.
 
-Codex Cloud пока закреплена на проверенном базовом commit 3658104 и схеме v1. Новая версия использует schema v2 и расширенный test suite; её проверка в CI не означает автоматического обновления snapshot опубликованной среды.
+Codex Cloud обновлена и опубликована на commit 2f9b65104ca68d1c9595489a8d1e5798dd77d376 (0.2.0, schema v2). Восстановление в новой задаче проверено: Python 3.12.14, 27 passed/2 Docker skipped, lint/format, 4 smoke-сценария и evaluation успешны. HTTP-тесты потребовали разрешения loopback sockets. Docker build и 2 integration tests отдельно прошли в GitHub Actions run 37887959962. Подробности и границы — [VERIFICATION.md](VERIFICATION.md).

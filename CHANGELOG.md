@@ -2,6 +2,8 @@
 
 ## Unreleased — 0.2.0
 
+- Подтверждены успешные unit/HTTP/CLI проверки, Docker build и оба Docker integration tests в GitHub Actions; обновлённый Codex Cloud snapshot опубликован и восстановлен на code commit 2f9b651.
+
 - Модульный API v2, report schema v2, относительные timestamps, versioned configurable sliding-window rule.
 - Добавлены spread-logins и labelled fixture evaluation с confusion matrix, recall и false positive rate.
 - Реализован локальный SQLite control plane: hashed tokens, tenant-scoped RBAC/scope, квоты, очередь, cancel/timeout, restart без replay.
